@@ -54,6 +54,77 @@ public class AdminService {
         return announcementRepository.save(announcement);
     }
 
+    public void deleteUser(Integer id) {
+        userRepository.deleteById(id);
+    }
+
+    public void suspendProvider(Integer id, boolean suspended) {
+        Company company = companyRepository.findById(id).orElseThrow();
+        company.getUser().setSuspended(suspended);
+        userRepository.save(company.getUser());
+    }
+
+    public void deleteProvider(Integer id) {
+        companyRepository.deleteById(id);
+    }
+
+    public void assignRole(String email, Role role) {
+        User user = userRepository.findByEmail(email).orElseThrow();
+        user.setRole(role);
+        userRepository.save(user);
+    }
+
+    public void expireJob(Integer id) {
+        Job job = jobRepository.findById(id).orElseThrow();
+        job.setExpired(true);
+        jobRepository.save(job);
+    }
+
+    public void deleteJob(Integer id) {
+        jobRepository.deleteById(id);
+    }
+
+    public Page<Announcement> getAllAnnouncements(Pageable pageable) {
+        return announcementRepository.findAll(pageable);
+    }
+
+    public java.util.List<com.hiringzone.dto.ActivityDTO> getRecentActivity() {
+        java.util.List<com.hiringzone.dto.ActivityDTO> activities = new java.util.ArrayList<>();
+        
+        // Latest Users
+        userRepository.findAll(org.springframework.data.domain.PageRequest.of(0, 3, org.springframework.data.domain.Sort.by("createdAt").descending()))
+                .forEach(u -> activities.add(com.hiringzone.dto.ActivityDTO.builder()
+                        .type("USER")
+                        .message("New seeker registered: " + u.getEmail())
+                        .timestamp(u.getCreatedAt())
+                        .icon("👤")
+                        .iconBg("bg-blue-900/40")
+                        .build()));
+        
+        // Latest Jobs
+        jobRepository.findAll(org.springframework.data.domain.PageRequest.of(0, 3, org.springframework.data.domain.Sort.by("createdAt").descending()))
+                .forEach(j -> activities.add(com.hiringzone.dto.ActivityDTO.builder()
+                        .type("JOB")
+                        .message("New job posted: " + j.getTitle())
+                        .timestamp(j.getCreatedAt())
+                        .icon("💼")
+                        .iconBg("bg-violet-900/40")
+                        .build()));
+
+        // Latest Applications
+        applicationRepository.findAll(org.springframework.data.domain.PageRequest.of(0, 3, org.springframework.data.domain.Sort.by("appliedAt").descending()))
+                .forEach(a -> activities.add(com.hiringzone.dto.ActivityDTO.builder()
+                        .type("APPLICATION")
+                        .message("New application for: " + a.getJob().getTitle())
+                        .timestamp(a.getAppliedAt())
+                        .icon("📤")
+                        .iconBg("bg-adm-900/40")
+                        .build()));
+
+        activities.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+        return activities.stream().limit(10).collect(java.util.stream.Collectors.toList());
+    }
+
     public Map<String, Long> getPlatformStats() {
         return Map.of(
                 "totalSeekers", userRepository.count(),
@@ -62,4 +133,5 @@ public class AdminService {
                 "totalApplications", applicationRepository.count()
         );
     }
+
 }

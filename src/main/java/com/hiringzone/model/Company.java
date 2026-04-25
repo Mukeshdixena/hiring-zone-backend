@@ -29,4 +29,20 @@ public class Company {
     private String website;
     private String location;
     private boolean verified;
+
+    public String getCompanyName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return user != null ? user.getEmail() : "";
+    }
+
+    public boolean isSuspended() {
+        return user != null && user.isSuspended();
+    }
+
+    public long getJobCount() {
+        return 0; // Requires repo
+    }
 }

@@ -42,4 +42,12 @@ public class Application {
         appliedAt = LocalDateTime.now();
         if (status == null) status = "Pending";
     }
+
+    public String getApplicantName() {
+        return user != null ? user.getName() : guestName;
+    }
+
+    public String getApplicantEmail() {
+        return user != null ? user.getEmail() : guestEmail;
+    }
 }

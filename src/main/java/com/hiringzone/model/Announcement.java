@@ -40,4 +40,12 @@ public class Announcement {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    public String getSentAt() {
+        return createdAt != null ? createdAt.toLocalDate().toString() : "";
+    }
+
+    public String getSentBy() {
+        return createdBy != null ? createdBy.getName() : "Admin";
+    }
 }

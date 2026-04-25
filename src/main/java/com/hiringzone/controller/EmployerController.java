@@ -35,6 +35,24 @@ public class EmployerController {
         return ResponseEntity.ok(jobService.getEmployerJobs(user, search, PageRequest.of(page, size, Sort.by("createdAt").descending())));
     }
 
+    @GetMapping("/jobs/{id}")
+    public ResponseEntity<Job> getJob(@PathVariable Integer id, @AuthenticationPrincipal User user) {
+        Job job = jobService.getJobById(id);
+        if (!job.getCompany().getUser().getId().equals(user.getId())) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(job);
+    }
+
+    @GetMapping("/applications/recent")
+    public ResponseEntity<Page<Application>> getRecentApplications(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(applicationService.getRecentApplications(user, PageRequest.of(page, size, Sort.by("appliedAt").descending())));
+    }
+
     @PostMapping("/jobs")
     public ResponseEntity<Job> postJob(@RequestBody Job job, @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(jobService.createJob(job, user));

@@ -74,8 +74,57 @@ public class AdminController {
         return ResponseEntity.ok(service.postAnnouncement(announcement, user));
     }
 
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+        service.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/providers/{id}/suspend")
+    public ResponseEntity<Void> suspendProvider(@PathVariable Integer id, @RequestBody Map<String, Boolean> body) {
+        service.suspendProvider(id, body.get("suspended"));
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/providers/{id}")
+    public ResponseEntity<Void> deleteProvider(@PathVariable Integer id) {
+        service.deleteProvider(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/roles/assign")
+    public ResponseEntity<Void> assignRole(@RequestBody Map<String, String> body) {
+        service.assignRole(body.get("email"), Role.valueOf(body.get("role")));
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/jobs/{id}/expire")
+    public ResponseEntity<Void> expireJob(@PathVariable Integer id) {
+        service.expireJob(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/jobs/{id}")
+    public ResponseEntity<Void> deleteJob(@PathVariable Integer id) {
+        service.deleteJob(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/announcements")
+    public ResponseEntity<Page<Announcement>> getAnnouncements(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size
+    ) {
+        return ResponseEntity.ok(service.getAllAnnouncements(PageRequest.of(page, size, Sort.by("createdAt").descending())));
+    }
+
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Long>> getStats() {
         return ResponseEntity.ok(service.getPlatformStats());
+    }
+
+    @GetMapping("/activity")
+    public ResponseEntity<java.util.List<com.hiringzone.dto.ActivityDTO>> getActivity() {
+        return ResponseEntity.ok(service.getRecentActivity());
     }
 }

@@ -25,6 +25,10 @@ public class ApplicationService {
         return repository.save(application);
     }
 
+    public boolean hasUserApplied(Integer userId, Integer jobId) {
+        return repository.findByUserIdAndJobId(userId, jobId).isPresent();
+    }
+
     public Page<Application> getSeekerApplications(User user, String status, Pageable pageable) {
         if (status != null && !status.isEmpty()) {
             return repository.findByUserIdAndStatus(user.getId(), status, pageable);
@@ -41,6 +45,10 @@ public class ApplicationService {
             return repository.findByJobIdAndStatus(jobId, status, pageable);
         }
         return repository.findByJobId(jobId, pageable);
+    }
+
+    public Page<Application> getRecentApplications(User employer, Pageable pageable) {
+        return repository.findByJobCompanyUserId(employer.getId(), pageable);
     }
 
     public Application updateStatus(Integer appId, String status, User employer) {
@@ -60,10 +68,12 @@ public class ApplicationService {
     }
 
     public Map<String, Object> getEmployerStats(User employer) {
-        Integer companyId = employer.getId(); // Simplified for now, should get companyId
+        Integer companyId = employer.getId(); // Simplified
         return Map.of(
                 "totalApplications", repository.countByJobCompanyUserId(employer.getId()),
-                "activeJobs", jobRepository.countByCompanyId(companyId) // Need better companyId lookup
+                "activeJobs", jobRepository.countByCompanyId(companyId),
+                "shortlisted", repository.countByJobCompanyUserIdAndStatus(employer.getId(), "Shortlisted"),
+                "hired", repository.countByJobCompanyUserIdAndStatus(employer.getId(), "Hired")
         );
     }
 }

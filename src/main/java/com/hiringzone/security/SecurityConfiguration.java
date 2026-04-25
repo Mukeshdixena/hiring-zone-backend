@@ -37,6 +37,7 @@ public class SecurityConfiguration {
                                 "/api/employer/auth/**",
                                 "/api/admin/auth/**",
                                 "/api/jobs/**", // Public job browsing
+                                "/api/stats/**", // Public stats
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
@@ -55,7 +56,10 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://cg3sfhz8-5173.inc1.devtunnels.ms"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);

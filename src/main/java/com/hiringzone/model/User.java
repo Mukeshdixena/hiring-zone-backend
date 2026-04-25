@@ -80,6 +80,14 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return !suspended;
+    }
+
+    public String getJoinedAt() {
+        return createdAt != null ? createdAt.toLocalDate().toString() : "";
+    }
+
+    public long getApplicationCount() {
+        return 0; // Requires repo, simplified for now
     }
 }

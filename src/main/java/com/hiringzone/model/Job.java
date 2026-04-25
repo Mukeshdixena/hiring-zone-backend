@@ -59,4 +59,7 @@ public class Job {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    public long getApplicationCount() {
+        return 0; // Requires repo, simplified for now
+    }
 }

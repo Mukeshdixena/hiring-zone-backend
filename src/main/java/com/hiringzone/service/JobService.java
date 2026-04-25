@@ -63,4 +63,18 @@ public class JobService {
         Company company = companyRepository.findByUserId(employer.getId()).orElseThrow();
         return repository.findByCompanyIdWithSearch(company.getId(), search, pageable);
     }
+
+    public java.util.Map<String, Object> getPublicStats() {
+        return java.util.Map.of(
+                "activeJobs", repository.count(),
+                "companiesHiring", companyRepository.count(),
+                "jobSeekers", 1200L, // Placeholder
+                "placementRate", 92L, // Mock for now
+                "categories", java.util.Map.of(
+                        "Technology", repository.countByCategory("Technology"),
+                        "Design", repository.countByCategory("Design"),
+                        "Marketing", repository.countByCategory("Marketing")
+                )
+        );
+    }
 }
