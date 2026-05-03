@@ -37,9 +37,29 @@ public class SeekerProfile {
     @Column(columnDefinition = "TEXT")
     private String skills; // Comma separated
 
+    @Builder.Default
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Experience> experiences = new java.util.ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Education> educations = new java.util.ArrayList<>();
+    
+    @Builder.Default
+    private Integer profileViews = 0;
+
+    public int calculateCompletion() {
+        int score = 0;
+        int totalFields = 8;
+        if (title != null && !title.isEmpty()) score++;
+        if (bio != null && !bio.isEmpty()) score++;
+        if (phone != null && !phone.isEmpty()) score++;
+        if (location != null && !location.isEmpty()) score++;
+        if (skills != null && !skills.isEmpty()) score++;
+        if (portfolioUrl != null || githubUrl != null || linkedinUrl != null) score++;
+        if (experiences != null && !experiences.isEmpty()) score++;
+        if (educations != null && !educations.isEmpty()) score++;
+        
+        return (int) (((double) score / totalFields) * 100);
+    }
 }

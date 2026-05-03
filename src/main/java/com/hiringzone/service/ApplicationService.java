@@ -60,20 +60,43 @@ public class ApplicationService {
         return repository.save(app);
     }
 
-    public Map<String, Long> getSeekerStats(User user) {
+    private final com.hiringzone.repository.SeekerProfileRepository profileRepository;
+
+    public Map<String, Object> getSeekerStats(User user) {
+        int profileCompletion = 0;
+        int profileViews = 0;
+        
+        var profileOpt = profileRepository.findByUserId(user.getId());
+        if (profileOpt.isPresent()) {
+            profileCompletion = profileOpt.get().calculateCompletion();
+            profileViews = profileOpt.get().getProfileViews() != null ? profileOpt.get().getProfileViews() : 0;
+        }
+
         return Map.of(
                 "totalApplications", repository.countByUserId(user.getId()),
-                "interviews", repository.countByUserIdAndStatus(user.getId(), "Shortlisted")
+                "interviews", repository.countByUserIdAndStatus(user.getId(), "Shortlisted"),
+                "profileCompletion", profileCompletion,
+                "profileViews", profileViews
         );
     }
 
     public Map<String, Object> getEmployerStats(User employer) {
-        Integer companyId = employer.getId(); // Simplified
+        java.time.LocalDateTime startOfMonth = java.time.LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        
+        long totalApps = repository.countByJobCompanyUserId(employer.getId());
+        long activeJobs = jobRepository.countByCompanyUserIdAndCreatedAtAfter(employer.getId(), java.time.LocalDateTime.of(2000, 1, 1, 0, 0)); // All jobs for now, or filter by expired=false
+        long shortlisted = repository.countByJobCompanyUserIdAndStatus(employer.getId(), "Shortlisted");
+        long hired = repository.countByJobCompanyUserIdAndStatus(employer.getId(), "Hired");
+
         return Map.of(
-                "totalApplications", repository.countByJobCompanyUserId(employer.getId()),
-                "activeJobs", jobRepository.countByCompanyId(companyId),
-                "shortlisted", repository.countByJobCompanyUserIdAndStatus(employer.getId(), "Shortlisted"),
-                "hired", repository.countByJobCompanyUserIdAndStatus(employer.getId(), "Hired")
+                "totalApplications", totalApps,
+                "totalApplicationsTrend", repository.countByJobCompanyUserIdAndAppliedAtAfter(employer.getId(), startOfMonth),
+                "activeJobs", activeJobs,
+                "activeJobsTrend", jobRepository.countByCompanyUserIdAndCreatedAtAfter(employer.getId(), startOfMonth),
+                "shortlisted", shortlisted,
+                "shortlistedTrend", repository.countByJobCompanyUserIdAndStatusAndAppliedAtAfter(employer.getId(), "Shortlisted", startOfMonth),
+                "hired", hired,
+                "hiredTrend", repository.countByJobCompanyUserIdAndStatusAndAppliedAtAfter(employer.getId(), "Hired", startOfMonth)
         );
     }
 }

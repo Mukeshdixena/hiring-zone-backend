@@ -5,6 +5,8 @@ import com.hiringzone.model.Job;
 import com.hiringzone.model.User;
 import com.hiringzone.repository.CompanyRepository;
 import com.hiringzone.repository.JobRepository;
+import com.hiringzone.repository.UserRepository;
+import com.hiringzone.repository.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service;
 public class JobService {
     private final JobRepository repository;
     private final CompanyRepository companyRepository;
+    private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
 
     public Page<Job> getAllJobs(String search, String location, String category, String type, String experience, Pageable pageable) {
         return repository.searchJobs(search, location, category, type, experience, pageable);
@@ -65,15 +69,24 @@ public class JobService {
     }
 
     public java.util.Map<String, Object> getPublicStats() {
+        long totalApplications = applicationRepository.count();
+        long hired = applicationRepository.countByStatus("Hired");
+        long placementRate = totalApplications > 0 ? (hired * 100) / totalApplications : 0;
+
         return java.util.Map.of(
                 "activeJobs", repository.count(),
                 "companiesHiring", companyRepository.count(),
-                "jobSeekers", 1200L, // Placeholder
-                "placementRate", 92L, // Mock for now
+                "jobSeekers", userRepository.countByRole(com.hiringzone.model.Role.ROLE_SEEKER),
+                "placementRate", placementRate,
                 "categories", java.util.Map.of(
                         "Technology", repository.countByCategory("Technology"),
                         "Design", repository.countByCategory("Design"),
-                        "Marketing", repository.countByCategory("Marketing")
+                        "Marketing", repository.countByCategory("Marketing"),
+                        "Finance", repository.countByCategory("Finance"),
+                        "Healthcare", repository.countByCategory("Healthcare"),
+                        "Sales", repository.countByCategory("Sales"),
+                        "Education", repository.countByCategory("Education"),
+                        "Engineering", repository.countByCategory("Engineering")
                 )
         );
     }

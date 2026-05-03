@@ -46,6 +46,7 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
     );
 
     long countByCompanyId(Integer companyId);
+    long countByCompanyUserIdAndCreatedAtAfter(Integer userId, java.time.LocalDateTime date);
 
     @Query("SELECT COUNT(j) FROM Job j WHERE j.category = :category")
     long countByCategory(@Param("category") String category);

@@ -101,7 +101,7 @@ public class SeekerController {
     }
 
     @GetMapping("/applications/stats")
-    public ResponseEntity<Map<String, Long>> getStats(@AuthenticationPrincipal User user) {
+    public ResponseEntity<Map<String, Object>> getStats(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(applicationService.getSeekerStats(user));
     }
 

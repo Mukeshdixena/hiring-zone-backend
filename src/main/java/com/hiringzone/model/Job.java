@@ -59,7 +59,10 @@ public class Job {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    @org.hibernate.annotations.Formula("(SELECT COUNT(*) FROM applications a WHERE a.job_id = id)")
+    private Long applicationCount;
+
     public long getApplicationCount() {
-        return 0; // Requires repo, simplified for now
+        return applicationCount != null ? applicationCount : 0;
     }
 }
