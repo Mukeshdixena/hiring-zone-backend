@@ -25,7 +25,7 @@ Spring Boot 3 REST API powering the HiringZone job portal.
 ### Run
 
 ```bash
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 The API starts on **port 9090**.  
@@ -34,16 +34,17 @@ Swagger UI: http://localhost:9090/swagger-ui.html
 ### Build fat JAR
 
 ```bash
-./mvnw package -DskipTests
+mvn package -DskipTests
 java -jar target/hiring-zone-backend-*.jar
 ```
 
 ## Environment Variables
 
-All variables have sensible defaults for local development.
+Variables can be placed in a local `.env` file. Empty `.env` values are ignored so defaults still work.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `DB_URL` | `jdbc:postgresql://localhost:5432/hiringzone` | Full database URL. Accepts `jdbc:postgresql://...`, `postgresql://...`, or `postgres://...` and takes priority over `DB_HOST`, `DB_PORT`, and `DB_NAME` when set. |
 | `DB_HOST` | `localhost` | PostgreSQL host |
 | `DB_PORT` | `5432` | PostgreSQL port |
 | `DB_NAME` | `hiringzone` | Database name |
@@ -55,6 +56,18 @@ All variables have sensible defaults for local development.
 | `SUPER_ADMIN_EMAIL` | `admin@hiringzone.com` | Bootstrap admin account email |
 | `SUPER_ADMIN_PASSWORD` | `admin123` | Bootstrap admin password — **always override in production** |
 | `ALLOWED_ORIGINS` | `http://localhost:5173` | Comma-separated CORS allowed origins |
+| `PORT` | `9090` | HTTP port. Most hosting platforms provide this automatically. |
+
+## Deployment
+
+Use Java 17 and Maven.
+
+```bash
+mvn package -DskipTests
+java -jar target/hiring-zone-backend-0.0.1-SNAPSHOT.jar
+```
+
+Set `DB_URL`, `JWT_SECRET`, `SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD`, and `ALLOWED_ORIGINS` in the hosting platform environment. `ALLOWED_ORIGINS` should include the deployed frontend origin, for example `https://mukeshdixena.github.io`. If you paste the full GitHub Pages URL with `/hiring-zone`, the backend normalizes it automatically.
 
 ## API Endpoints
 
@@ -117,16 +130,3 @@ Flyway manages schema versioning. Migration scripts are in `src/main/resources/d
 |---------|-------------|
 | V1 | Initial schema (users, companies, jobs, applications, saved_jobs, announcements, admin_logs) |
 | V2 | Add seeker_profile tables (profiles, experiences, educations) |
-
-## Docker
-
-Multi-stage build in `Dockerfile` — Maven build + minimal JRE image:
-
-```bash
-docker build -t hiringzone-backend .
-docker run -p 9090:9090 \
-  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host:5432/hiringzone \
-  -e JWT_SECRET=your-secret \
-  -e ALLOWED_ORIGINS=https://your-frontend.com \
-  hiringzone-backend
-```

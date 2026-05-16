@@ -31,7 +31,7 @@ application:
     password: ${SUPER_ADMIN_PASSWORD:admin123}
 
 server:
-  port: 9090
+  port: ${PORT:9090}
   error:
     include-message: always
 

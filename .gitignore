@@ -3,6 +3,8 @@
 
 # Log files
 *.log
+logs/
+*.pid
 
 # BlueJ files
 *.ctxt
@@ -54,3 +56,6 @@ Thumbs.db
 
 # Uploads
 uploads/
+
+# Local environment
+.env

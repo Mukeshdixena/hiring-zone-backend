@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -62,12 +63,39 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        configuration.setAllowedOrigins(parseAllowedOrigins());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    private List<String> parseAllowedOrigins() {
+        return Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isBlank())
+                .map(this::normalizeOrigin)
+                .toList();
+    }
+
+    private String normalizeOrigin(String origin) {
+        try {
+            URI uri = URI.create(origin);
+            if (uri.getScheme() == null || uri.getHost() == null) {
+                return origin;
+            }
+
+            StringBuilder normalized = new StringBuilder(uri.getScheme())
+                    .append("://")
+                    .append(uri.getHost());
+            if (uri.getPort() > 0) {
+                normalized.append(':').append(uri.getPort());
+            }
+            return normalized.toString();
+        } catch (IllegalArgumentException ex) {
+            return origin;
+        }
     }
 }
