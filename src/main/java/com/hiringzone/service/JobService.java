@@ -5,12 +5,17 @@ import com.hiringzone.model.Job;
 import com.hiringzone.model.User;
 import com.hiringzone.repository.CompanyRepository;
 import com.hiringzone.repository.JobRepository;
+import com.hiringzone.repository.JobSpecification;
 import com.hiringzone.repository.UserRepository;
 import com.hiringzone.repository.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +25,17 @@ public class JobService {
     private final UserRepository userRepository;
     private final ApplicationRepository applicationRepository;
 
-    public Page<Job> getAllJobs(String search, String location, String category, String type, String experience, Pageable pageable) {
-        return repository.searchJobs(search, location, category, type, experience, pageable);
+    public Page<Job> getAllJobs(String keyword, String location, String category,
+                               List<String> types, List<String> expLevels,
+                               BigDecimal minSalary, Pageable pageable) {
+        Specification<Job> spec = Specification.where(JobSpecification.active())
+                .and(JobSpecification.keyword(keyword))
+                .and(JobSpecification.location(location))
+                .and(JobSpecification.category(category))
+                .and(JobSpecification.types(types))
+                .and(JobSpecification.experienceLevels(expLevels))
+                .and(JobSpecification.minSalary(minSalary));
+        return repository.findAll(spec, pageable);
     }
 
     public Job getJobById(Integer id) {
@@ -68,6 +82,14 @@ public class JobService {
         return repository.findByCompanyIdWithSearch(company.getId(), search, pageable);
     }
 
+    private java.util.Map<String, Long> buildCategoryCounts() {
+        java.util.Map<String, Long> counts = new java.util.LinkedHashMap<>();
+        for (String cat : com.hiringzone.controller.MetaController.CATEGORIES) {
+            counts.put(cat, repository.countByCategory(cat));
+        }
+        return counts;
+    }
+
     public java.util.Map<String, Object> getPublicStats() {
         long totalApplications = applicationRepository.count();
         long hired = applicationRepository.countByStatus("Hired");
@@ -78,16 +100,7 @@ public class JobService {
                 "companiesHiring", companyRepository.count(),
                 "jobSeekers", userRepository.countByRole(com.hiringzone.model.Role.ROLE_SEEKER),
                 "placementRate", placementRate,
-                "categories", java.util.Map.of(
-                        "Technology", repository.countByCategory("Technology"),
-                        "Design", repository.countByCategory("Design"),
-                        "Marketing", repository.countByCategory("Marketing"),
-                        "Finance", repository.countByCategory("Finance"),
-                        "Healthcare", repository.countByCategory("Healthcare"),
-                        "Sales", repository.countByCategory("Sales"),
-                        "Education", repository.countByCategory("Education"),
-                        "Engineering", repository.countByCategory("Engineering")
-                )
+                "categories", buildCategoryCounts()
         );
     }
 }

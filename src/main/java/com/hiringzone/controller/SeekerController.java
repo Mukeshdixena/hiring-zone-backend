@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -48,15 +51,31 @@ public class SeekerController {
     // Public Job routes
     @GetMapping("/jobs")
     public ResponseEntity<Page<Job>> getJobs(
-            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String experience,
+            @RequestParam(required = false) String types,
+            @RequestParam(required = false) String expLevels,
+            @RequestParam(required = false) BigDecimal minSalary,
+            @RequestParam(defaultValue = "newest") String sort,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "12") int size
     ) {
-        return ResponseEntity.ok(jobService.getAllJobs(search, location, category, type, experience, PageRequest.of(page, size, Sort.by("createdAt").descending())));
+        List<String> typeList = (types != null && !types.isBlank())
+                ? Arrays.asList(types.split(",")) : null;
+        List<String> expList = (expLevels != null && !expLevels.isBlank())
+                ? Arrays.asList(expLevels.split(",")) : null;
+
+        Sort sortOrder = switch (sort) {
+            case "salary_desc" -> Sort.by("salaryMax").descending();
+            case "salary_asc"  -> Sort.by("salaryMin").ascending();
+            default            -> Sort.by("createdAt").descending();
+        };
+
+        return ResponseEntity.ok(jobService.getAllJobs(
+                keyword, location, category, typeList, expList, minSalary,
+                PageRequest.of(page, size, sortOrder)
+        ));
     }
 
     @GetMapping("/jobs/{id}")
@@ -106,12 +125,12 @@ public class SeekerController {
     }
 
     @GetMapping("/saved-jobs")
-    public ResponseEntity<Page<SavedJob>> getSavedJobs(
+    public ResponseEntity<Page<Job>> getSavedJobs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal User user
     ) {
-        return ResponseEntity.ok(savedJobRepository.findByUserId(user.getId(), PageRequest.of(page, size)));
+        return ResponseEntity.ok(savedJobRepository.findByUserId(user.getId(), PageRequest.of(page, size)).map(SavedJob::getJob));
     }
 
     @PostMapping("/jobs/{jobId}/save")
