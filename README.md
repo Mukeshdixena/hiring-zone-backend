@@ -69,6 +69,20 @@ java -jar target/hiring-zone-backend-0.0.1-SNAPSHOT.jar
 
 Set `DB_URL`, `JWT_SECRET`, `SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD`, and `ALLOWED_ORIGINS` in the hosting platform environment. `ALLOWED_ORIGINS` should include the deployed frontend origin, for example `https://mukeshdixena.github.io`. If you paste the full GitHub Pages URL with `/hiring-zone`, the backend normalizes it automatically.
 
+### Render
+
+Render deploys JVM apps with Docker. Create the service as a Docker Web Service and leave the Dockerfile path as `Dockerfile`.
+
+Set these environment variables in Render:
+
+```env
+DB_URL=
+JWT_SECRET=
+SUPER_ADMIN_EMAIL=
+SUPER_ADMIN_PASSWORD=
+ALLOWED_ORIGINS=https://mukeshdixena.github.io
+```
+
 ## API Endpoints
 
 ### Public (no auth required)
