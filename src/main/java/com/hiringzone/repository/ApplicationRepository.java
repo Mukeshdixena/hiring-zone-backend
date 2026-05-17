@@ -26,4 +26,5 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     Page<Application> findByJobCompanyUserId(Integer userId, Pageable pageable);
     
     long countByStatus(String status);
+    long countByAppliedAtBefore(java.time.LocalDateTime date);
 }
