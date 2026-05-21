@@ -1,146 +1,233 @@
-# HiringZone Backend
+# 🚀 HiringZone Backend — Recruitment Platform API
 
-Spring Boot 3 REST API powering the HiringZone job portal.
+Production-grade Spring Boot backend powering the HiringZone recruitment ecosystem with secure authentication, role-based access control, scalable REST APIs, and enterprise-ready architecture.
 
-## Tech Stack
+---
 
+## 🌟 Overview
+
+HiringZone Backend is a scalable REST API platform designed to support a modern multi-role job portal ecosystem consisting of:
+
+- 👤 Job Seekers
+- 🏢 Employers
+- 🛡️ Administrators
+
+The system provides secure JWT authentication, RBAC authorization, job management workflows, application tracking, employer verification pipelines, and administrative moderation capabilities.
+
+Built with scalability, modularity, and production-readiness in mind.
+
+---
+
+# 🛠️ Tech Stack
+
+## Core Backend
 - Java 17
 - Spring Boot 3.2
-- Spring Security (JWT, RBAC)
+- Spring Security
 - Spring Data JPA + Hibernate
+
+## Database & Caching
 - PostgreSQL
-- Redis (session/cache)
-- Flyway (database migrations)
+- Redis
+
+## Authentication & Security
+- JWT Authentication
+- Role-Based Access Control (RBAC)
+
+## Tooling & Infrastructure
+- Flyway Database Migrations
 - Swagger / OpenAPI 3
+- Maven
 
-## Getting Started
+---
 
-### Prerequisites
+# 🏗️ System Architecture
 
+```mermaid
+graph TD
+    A[Vue Frontend SPA] -->|REST API / JWT| B[Spring Boot API]
+    B -->|JPA / Hibernate| C[(PostgreSQL)]
+    B -->|Cache / Sessions| D[(Redis)]
+```
+
+---
+
+# ✨ Core Features
+
+## 🔐 Authentication & Authorization
+- JWT-based stateless authentication
+- Multi-role authorization system:
+  - ROLE_SEEKER
+  - ROLE_EMPLOYER
+  - ROLE_ADMIN
+- Secure route protection
+- Password encryption with Spring Security
+
+---
+
+## 👤 Seeker Platform
+- User registration & login
+- Profile management
+- Job search & filtering
+- Job applications tracking
+- Saved jobs functionality
+- Application statistics
+
+---
+
+## 🏢 Employer Platform
+- Employer onboarding
+- Job posting management
+- Applicants management
+- Application status workflows
+- Employer analytics dashboard
+
+---
+
+## 🛡️ Admin Platform
+- User moderation
+- Employer verification
+- Job flagging & expiration
+- Platform announcements
+- Activity monitoring
+- Administrative analytics
+
+---
+
+# 📂 API Modules
+
+```text
+/api/auth
+/api/jobs
+/api/profile
+/api/applications
+/api/employer/*
+/api/admin/*
+```
+
+---
+
+# 🗄️ Database Architecture
+
+Core relational entities:
+
+- users
+- companies
+- jobs
+- applications
+- seeker_profiles
+- saved_jobs
+- announcements
+- admin_logs
+
+Flyway manages schema versioning and migrations automatically.
+
+---
+
+# ⚙️ Environment Variables
+
+```env
+DB_URL=
+DB_USER=
+DB_PASSWORD=
+
+REDIS_HOST=
+REDIS_PORT=
+
+JWT_SECRET=
+
+SUPER_ADMIN_EMAIL=
+SUPER_ADMIN_PASSWORD=
+
+ALLOWED_ORIGINS=
+
+PORT=9090
+```
+
+---
+
+# 🚀 Running Locally
+
+## Prerequisites
 - Java 17+
 - Maven 3.9+
-- PostgreSQL 15 running on `localhost:5432`
-- Redis 7 running on `localhost:6379`
+- PostgreSQL
+- Redis
 
-### Run
+## Development
 
 ```bash
 mvn spring-boot:run
 ```
 
-The API starts on **port 9090**.  
-Swagger UI: http://localhost:9090/swagger-ui.html
+API:
+```text
+http://localhost:9090
+```
 
-### Build fat JAR
+Swagger UI:
+```text
+http://localhost:9090/swagger-ui.html
+```
+
+---
+
+# 📦 Production Build
 
 ```bash
 mvn package -DskipTests
 java -jar target/hiring-zone-backend-*.jar
 ```
 
-## Environment Variables
+---
 
-Variables can be placed in a local `.env` file. Empty `.env` values are ignored so defaults still work.
+# 🌐 Deployment
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DB_URL` | `jdbc:postgresql://localhost:5432/hiringzone` | Full database URL. Accepts `jdbc:postgresql://...`, `postgresql://...`, or `postgres://...` and takes priority over `DB_HOST`, `DB_PORT`, and `DB_NAME` when set. |
-| `DB_HOST` | `localhost` | PostgreSQL host |
-| `DB_PORT` | `5432` | PostgreSQL port |
-| `DB_NAME` | `hiringzone` | Database name |
-| `DB_USER` | `postgres` | Database user |
-| `DB_PASSWORD` | `password` | Database password |
-| `REDIS_HOST` | `localhost` | Redis host |
-| `REDIS_PORT` | `6379` | Redis port |
-| `JWT_SECRET` | (built-in 64-char hex) | JWT signing secret — **always override in production** |
-| `SUPER_ADMIN_EMAIL` | `admin@hiringzone.com` | Bootstrap admin account email |
-| `SUPER_ADMIN_PASSWORD` | `admin123` | Bootstrap admin password — **always override in production** |
-| `ALLOWED_ORIGINS` | `http://localhost:5173` | Comma-separated CORS allowed origins |
-| `PORT` | `9090` | HTTP port. Most hosting platforms provide this automatically. |
+Recommended platforms:
 
-## Deployment
+- Render
+- Railway
+- AWS
+- DigitalOcean
 
-Use Java 17 and Maven.
+Supports containerized deployments and cloud PostgreSQL providers.
 
-```bash
-mvn package -DskipTests
-java -jar target/hiring-zone-backend-0.0.1-SNAPSHOT.jar
-```
+---
 
-Set `DB_URL`, `JWT_SECRET`, `SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD`, and `ALLOWED_ORIGINS` in the hosting platform environment. `ALLOWED_ORIGINS` should include the deployed frontend origin, for example `https://mukeshdixena.github.io`. If you paste the full GitHub Pages URL with `/hiring-zone`, the backend normalizes it automatically.
+# 📈 Architecture Highlights
 
-### Render
+- Layered backend architecture
+- Modular REST API design
+- Centralized exception handling
+- JWT stateless security model
+- Database schema versioning with Flyway
+- Redis caching integration
+- Production-ready CORS handling
 
-Render deploys JVM apps with Docker. Create the service as a Docker Web Service and leave the Dockerfile path as `Dockerfile`.
+---
 
-Set these environment variables in Render:
+# 🔮 Planned Improvements
 
-```env
-DB_URL=
-JWT_SECRET=
-SUPER_ADMIN_EMAIL=
-SUPER_ADMIN_PASSWORD=
-ALLOWED_ORIGINS=https://mukeshdixena.github.io
-```
+- Docker Compose infrastructure
+- CI/CD pipeline
+- API rate limiting
+- Refresh token rotation
+- WebSocket notifications
+- Elasticsearch-powered search
+- Monitoring & observability
+- Kubernetes deployment support
 
-## API Endpoints
+---
 
-### Public (no auth required)
+# 👨‍💻 Engineering Focus
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/api/auth/register` | Seeker registration |
-| `POST` | `/api/auth/login` | Seeker login |
-| `POST` | `/api/employer/auth/register` | Employer registration |
-| `POST` | `/api/employer/auth/login` | Employer login |
-| `POST` | `/api/admin/auth/login` | Admin login |
-| `GET` | `/api/jobs` | Search jobs (keyword, location, category, types, expLevels, minSalary, sort, page, size) |
-| `GET` | `/api/jobs/{id}` | Job detail |
-| `GET` | `/api/meta` | Job types, experience levels, categories, popular tags |
-| `GET` | `/api/stats/public` | Platform statistics |
+This project emphasizes:
+- scalable backend architecture
+- security-first API design
+- enterprise RBAC systems
+- modular service organization
+- production deployment readiness
 
-### Seeker (Bearer token — ROLE_SEEKER)
+---
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET/PUT` | `/api/profile` | Seeker profile |
-| `POST` | `/api/jobs/{id}/apply` | Apply to job |
-| `GET` | `/api/applications` | My applications (with optional `status` filter) |
-| `GET` | `/api/applications/stats` | Application statistics |
-| `GET` | `/api/saved-jobs` | Saved jobs |
-| `POST/DELETE` | `/api/jobs/{id}/save` | Save / unsave job |
-
-### Employer (Bearer token — ROLE_EMPLOYER)
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET/POST` | `/api/employer/jobs` | List / create jobs |
-| `PUT/DELETE` | `/api/employer/jobs/{id}` | Update / delete job |
-| `GET` | `/api/employer/jobs/{id}/applications` | Applications for a job |
-| `PATCH` | `/api/employer/applications/{id}/status` | Update application status |
-| `GET` | `/api/employer/stats` | Employer dashboard statistics |
-
-### Admin (Bearer token — ROLE_ADMIN)
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/admin/users` | All users |
-| `PATCH` | `/api/admin/users/{id}/suspend` | Suspend / unsuspend user |
-| `GET` | `/api/admin/providers` | All employers/companies |
-| `PATCH` | `/api/admin/providers/{id}/verify` | Verify employer |
-| `GET` | `/api/admin/jobs` | All jobs (admin view) |
-| `PATCH` | `/api/admin/jobs/{id}/flag` | Flag / unflag job |
-| `PATCH` | `/api/admin/jobs/{id}/expire` | Expire job |
-| `DELETE` | `/api/admin/jobs/{id}` | Delete job |
-| `POST` | `/api/admin/announcements` | Post announcement |
-| `GET` | `/api/admin/stats` | Platform statistics |
-| `GET` | `/api/admin/activity` | Recent activity feed |
-
-## Database Migrations
-
-Flyway manages schema versioning. Migration scripts are in `src/main/resources/db/migration/`.
-
-| Version | Description |
-|---------|-------------|
-| V1 | Initial schema (users, companies, jobs, applications, saved_jobs, announcements, admin_logs) |
-| V2 | Add seeker_profile tables (profiles, experiences, educations) |
+Built to simulate real-world recruitment platform backend engineering at production scale.
